@@ -6,40 +6,44 @@ const doc = {
     cityInput: document.querySelector('#city'),
     salaryInput: document.querySelector('#salary'),
     operationModalLabel: document.querySelector('#operationModalLabel')
-};
+}
 const state = {
     dolgozoLista: [],
-    host: null
-};
+    host: null,
+    adding: true
+}
 
 window.addEventListener('load', () => {
     init();
 })
 
 function init() {
-    state.host = 'http://localhost:8000/';
+    state.host = 'http://localhost:8000/'
     doc.saveButton.addEventListener('click', () => {
-        startAddEmployee();
+        if(state.adding){startAddEmployee()}
+
+        else{startUpdate()}
     });
-    getEmployee();
+    getEmployees()
 }
 
 function startAddEmployee() {
-    let name = doc.nameInput.value;
-    let city = doc.cityInput.value;
-    let salary = Number(doc.salaryInput.value);
+    let name = doc.nameInput.value
+    let city = doc.cityInput.value
+    let salary = Number(doc.salaryInput.value)
     console.log(name)
     let employee = {
         name: name,
         city: city,
         salary: salary
-    };
-    addEmployee(employee);
+    }
+    addEmployee(employee)
+    getEmployees()
 }
 
 function addEmployee(employee) {
-    let endpoint = 'employees';
-    let url = state.host + endpoint;
+    let endpoint = 'employees'
+    let url = state.host + endpoint
     fetch(url, {
         method: 'post',
         body: JSON.stringify(employee),
@@ -49,70 +53,106 @@ function addEmployee(employee) {
     })
     .then( response => response.json())
     .then( result => {
-        console.log(result);
-        clearModalFields();
-    });
+        console.log(result)
+        clearModalFields()
+    })
 }
 
 function clearModalFields() {
-    doc.nameInput.value = '';
-    doc.cityInput.value = '';
-    doc.salaryInput.value = '';
+    doc.nameInput.value = ''
+    doc.cityInput.value = ''
+    doc.salaryInput.value = ''
 }
 
-function getEmployee() {
-    let endpoint = 'employees';
-    let url = state.host + endpoint;
+function getEmployees() {
+    let endpoint = 'employees'
+    let url = state.host + endpoint
     fetch(url)
     .then(response => response.json())
     .then(result => {
-        console.log(result);
-        state.dolgozoLista = result;
-        render();
+        console.log(result)
+        state.dolgozoLista = result
+        render()
     })
     .catch( err => {
         console.log('Hiba!')
         console.log(err)
-    });
+    })
 }
 
 function deleteEmployee(id) {
-    let endpoint = 'employees';
-    let url = state.host + endpoint + '/' + id;
+    let endpoint = 'employees'
+    let url = state.host + endpoint + '/' + id
     console.log(url)
     fetch(url, {
         method: 'delete'
     })
     .then(response => response.json())
     .then(result => {
-        console.log(result);
-        getEmployee();
-        render();
+        console.log(result)
+        getEmployees()
+        render()
     });
     
 }
 
 function startEditEmployee(event) {
-    let id = event.getAttribute('data-id');
-    let name = event.getAttribute('data-name');
-    let city = event.getAttribute('data-city');
-    let salary = event.getAttribute('data-salary');
+    state.adding = false
+    let id = event.getAttribute('data-id')
+    let name = event.getAttribute('data-name')
+    let city = event.getAttribute('data-city')
+    let salary = event.getAttribute('data-salary')
     // console.log(id, name)
-    doc.idInput.value = id;
-    doc.nameInput.value = name;
-    doc.cityInput.value = city;
-    doc.salaryInput.value = salary;
+    doc.idInput.value = id
+    doc.nameInput.value = name
+    doc.cityInput.value = city
+    doc.salaryInput.value = salary
     doc.operationModalLabel.textContent = 'Szerkesztés'
+    getEmployees()
 }
 
 function startDeleteEmployee(event) {
-    let id = event.getAttribute('data-id');
-    deleteEmployee(id);
+    let id = event.getAttribute('data-id')
+    deleteEmployee(id)
+}
+
+function startUpdate(){
+    let id = doc.idInput.value
+    let name = doc.nameInput.value
+    let city = doc.cityInput.value
+    let salary = doc.salaryInput.value
+
+    let employee={
+        id: id,
+        name: name,
+        city: city,
+        salary: salary
+    }
+    updateEmployee(employee)
+    state.adding=true
+    getEmployees()
 }
 
 
+function updateEmployee(employee){
+    let endpoint = 'employees'
+    let url= state.host + endpoint+ "/" + employee.id
+    fetch(url,{
+        method: 'PUT',
+        body: JSON.stringify(employee),
+        headers: {
+            'Content-Type':'application/json'
+        }
+    })
+    .then(response =>response.json())
+    .then(result=>{
+        console.log(result)
+    })
+    
+}
+
 function render() {
-    let rows = '';
+    let rows = ''
     state.dolgozoLista.forEach( dolgozo => {
         rows += `
             <tr>
@@ -138,10 +178,10 @@ function render() {
                     >Szerkesztés</button>
                 </td>
             </tr>
-        `;
+        `
 
-    });
-    doc.tbody.innerHTML = rows;
+    })
+    doc.tbody.innerHTML = rows
     
 }
 

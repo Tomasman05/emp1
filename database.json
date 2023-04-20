@@ -55,10 +55,10 @@
       "id": 10
     },
     {
+      "id": 11,
       "name": "ddd",
       "city": "ddd",
-      "salary": 444,
-      "id": 11
+      "salary": "444"
     }
   ],
   "ranks": [
